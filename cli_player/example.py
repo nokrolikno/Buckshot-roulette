@@ -1,7 +1,7 @@
-import engine
+from engine.engine import Engine, PlayerAbstract
 
 
-class MyPlayer(engine.PlayerAbstract):
+class CLIPlayer(PlayerAbstract):
     def __init__(self, number):
         self.number = number
 
@@ -27,9 +27,9 @@ class MyPlayer(engine.PlayerAbstract):
 
 
 def main():
-    player1 = MyPlayer(1)
-    player2 = MyPlayer(2)
-    print(engine.Engine(player1, player2).start())
+    player1 = CLIPlayer(1)
+    player2 = CLIPlayer(2)
+    print(Engine(player1, player2).start())
 
 
 if __name__ == '__main__':
