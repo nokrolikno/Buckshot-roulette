@@ -189,7 +189,7 @@ class Engine:
                 bullet = chamber.pop(0)
                 player.items.remove('BEER')
                 available = ['YOU', 'OPPONENT'] + player.items
-                if len(chamber == 0):
+                if not chamber:
                     available = []
                 move = self.get_move(
                     who_moves,
@@ -203,6 +203,8 @@ class Engine:
                     bullet,
                     [],
                 )
+                if not chamber:
+                    return
             elif move == 'CIGARETTES':
                 player.hp = player.hp + 1 if player.hp < self.max_hp else player.hp
                 player.items.remove('CIGARETTES')
