@@ -114,7 +114,7 @@ class Engine:
                 list(set(available)),
             )
             if move not in available and (len(available) > 0 or move != 'NOTHING'):
-                raise ValueError('move is not in available')
+                raise ValueError('move is not in available')  # TODO: Поменять логику обработки
         except Exception as e:
             raise
         return move
