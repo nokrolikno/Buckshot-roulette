@@ -20,17 +20,17 @@ class PlayerAbstract(ABC):
         :param opponent_hp: int, opponent`s current HP.
 
         :param my_items: list[str], list of all your items.
-        Example: ['BEER', 'BEER', 'CIGARETTES', 'HANDCUFFS', 'KNIFE', 'MAGNIFIER']
+        Example: ['BEER', 'BEER', 'CIGARETTES', 'HANDCUFFS', 'HAND_SAW', 'MAGNIFIER']
 
         :param opponent_items: list[str], list of all opponents items.
-        Example: ['BEER', 'BEER', 'CIGARETTES', 'HANDCUFFS', 'KNIFE', 'MAGNIFIER']
+        Example: ['BEER', 'BEER', 'CIGARETTES', 'HANDCUFFS', 'HAND_SAW', 'MAGNIFIER']
 
         :param action: str, string containing action as input. It builds like this:
             '{1} {2}'
             1 - [YOU, OPPONENT, BASE] - who did the action or 'BASE' if it is general action
-            2 - [YOU, OPPONENT, BEER, CIGARETTES, HANDCUFFS, KNIFE, MAGNIFIER, ROUND_START] - the action itself where
+            2 - [YOU, OPPONENT, BEER, CIGARETTES, HANDCUFFS, HAND_SAW, MAGNIFIER, ROUND_START] - the action itself where
                 YOU, OPPONENT - stands for shooting you or opponent
-                BEER, CIGARETTES, HANDCUFFS, KNIFE, MAGNIFIER - using an item
+                BEER, CIGARETTES, HANDCUFFS, HAND_SAW, MAGNIFIER - using an item
                 ROUND_START - start of the round, action_result will contain number of live and blank rounds
         Example: 'YOU YOU' - means you shoot yourself
                  'YOU HANDCUFFS' - means you use handcuffs on your opponent
@@ -44,7 +44,7 @@ class PlayerAbstract(ABC):
                  'BLANK'
 
         :param available: list[str] - list of available actions. if it is empty, you must return 'NOTHING'.
-        Example: ['YOU', 'OPPONENT', 'BEER', 'CIGARETTES', 'HANDCUFFS', 'KNIFE', 'MAGNIFIER']
+        Example: ['YOU', 'OPPONENT', 'BEER', 'CIGARETTES', 'HANDCUFFS', 'HAND_SAW', 'MAGNIFIER']
 
         :return: str, one of the available actions or 'NOTHING' if available empty.
         Example: 'BEER'
@@ -61,7 +61,7 @@ class Player:
 
 
 class Engine:
-    ITEMS = ['BEER', 'CIGARETTES', 'HANDCUFFS', 'KNIFE', 'MAGNIFIER']
+    ITEMS = ['BEER', 'CIGARETTES', 'HANDCUFFS', 'HAND_SAW', 'MAGNIFIER']
 
     def __init__(
             self,
@@ -123,31 +123,32 @@ class Engine:
         player = self.player1 if who_moves == 1 else self.player2
         opponent = self.player2 if who_moves == 1 else self.player1
         opponent_handcuffed = False
-        knife_active = False
+        handcuffs_cooldown = 0
+        hand_saw_active = False
         while True:
             if move in {'YOU', 'OPPONENT'}:
                 bullet = chamber.pop(0)
                 swap = True
                 if move == 'YOU' and bullet == 'LIVE':
                     player.hp -= 1
-                    if knife_active:
-                        knife_active = False
+                    if hand_saw_active:
+                        hand_saw_active = False
                         player.hp -= 1
                 if move == 'OPPONENT' and bullet == 'LIVE':
                     opponent.hp -= 1
-                    if knife_active:
-                        knife_active = False
+                    if hand_saw_active:
+                        hand_saw_active = False
                         opponent.hp -= 1
                 if move == 'YOU' and bullet == 'BLANK':
                     swap = False
+                if handcuffs_cooldown:
+                    handcuffs_cooldown -= 1
                 if opponent_handcuffed:
                     opponent_handcuffed = False
                     swap = False
-                if player.hp <= 0 or opponent.hp <= 0:
-                    return
                 if swap:
                     available = ['YOU', 'OPPONENT'] + opponent.items
-                    if not chamber:
+                    if not chamber or player.hp <= 0 or opponent.hp <= 0:
                         available = []
                     who_shot = 'YOU' if move == 'OPPONENT' else 'OPPONENT'
                     opponent_move = self.get_move(
@@ -167,7 +168,7 @@ class Engine:
                     player, opponent = opponent, player
                 else:
                     available = ['YOU', 'OPPONENT'] + player.items
-                    if not chamber:
+                    if not chamber or player.hp <= 0 or opponent.hp <= 0:
                         available = []
                     who_shot = 'YOU' if move == 'OPPONENT' else 'OPPONENT'
                     move = self.get_move(
@@ -182,7 +183,7 @@ class Engine:
                         bullet,
                         [],
                     )
-                if not chamber:
+                if not chamber or player.hp <= 0 or opponent.hp <= 0:
                     return
 
             if move == 'BEER':
@@ -223,7 +224,9 @@ class Engine:
                 )
             elif move == 'HANDCUFFS':
                 player.items.remove('HANDCUFFS')
-                opponent_handcuffed = True
+                if handcuffs_cooldown == 0:
+                    opponent_handcuffed = True
+                    handcuffs_cooldown = 2
                 available = ['YOU', 'OPPONENT'] + player.items
                 move = self.get_move(
                     who_moves,
@@ -237,19 +240,19 @@ class Engine:
                     '',
                     [],
                 )
-            elif move == 'KNIFE':
-                player.items.remove('KNIFE')
-                knife_active = True
+            elif move == 'HAND_SAW':
+                player.items.remove('HAND_SAW')
+                hand_saw_active = True
                 available = ['YOU', 'OPPONENT'] + player.items
                 move = self.get_move(
                     who_moves,
-                    'YOU KNIFE',
+                    'YOU HAND_SAW',
                     '',
                     available,
                 )
                 self.get_move(
                     who_moves % 2 + 1,
-                    'OPPONENT KNIFE',
+                    'OPPONENT HAND_SAW',
                     '',
                     [],
                 )

@@ -1,4 +1,4 @@
-from engine.engine import Engine, PlayerAbstract
+from engine.engine import PlayerAbstract
 
 
 class CLIPlayer(PlayerAbstract):
@@ -24,13 +24,3 @@ class CLIPlayer(PlayerAbstract):
         print(f'Результат действия: {action_result}')
         print(f'Доступные ходы: {available}')
         return input('Мой ход: ')
-
-
-def main():
-    player1 = CLIPlayer(1)
-    player2 = CLIPlayer(2)
-    print(Engine(player1, player2).start())
-
-
-if __name__ == '__main__':
-    main()
