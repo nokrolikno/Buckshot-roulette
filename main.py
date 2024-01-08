@@ -1,10 +1,11 @@
 from cli_player.cli_player import CLIPlayer
 from engine.engine import Engine
 from primitive_bots.random_move_bot import RandomMoveBot
-
+from language.language import pick_language
 
 def main():
-    player1 = CLIPlayer(input('Введите имя игрока: '))
+    language = pick_language()
+    player1 = CLIPlayer(input(language.greeting()), language)
     player2 = RandomMoveBot()
     print(Engine(player1, player2).start())
 
