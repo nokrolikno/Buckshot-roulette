@@ -1,14 +1,22 @@
 from enum import Enum, auto
+from functools import total_ordering
 
 class Action:
     pass
 
+@total_ordering
 class Item(Action, Enum):
     Beer = auto()
     Cigarettes = auto()
     Handcuffs = auto()
     HandSaw = auto()
     Magnifier = auto()
+
+    def __le__(self, __value: object) -> bool:
+        if isinstance(__value, Item):
+            return self.value < __value.value
+        else:
+            return False
 
     def __str__(self):
         return self.name

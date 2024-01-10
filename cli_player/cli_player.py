@@ -25,9 +25,9 @@ class CLIPlayer(PlayerAbstract):
         print(self.language.opponent_hp(), end='')
         print(opponent_hp)
         print(self.language.my_items(), end='')
-        print(', '.join(map(str, my_items)))
+        print(describe_items(my_items))
         print(self.language.opponent_items(), end='')
-        print(', '.join(map(str, opponent_items)))
+        print(describe_items(opponent_items))
         print(self.language.action(), end='')
         print(str(action))
         print(self.language.action_result(), end='')
@@ -48,3 +48,27 @@ class CLIPlayer(PlayerAbstract):
             move = Nothing()
         print('-----------------------------')
         return move
+
+
+def describe_items(items: list[Item]) -> str:
+    items = items.copy()
+    items.sort()
+    ret = []
+    last_item = None
+    count_of_last_item = 1
+    while items or last_item != None:
+        try:
+            item = items.pop()
+        except IndexError:
+            item = None
+        if last_item == item:
+            count_of_last_item += 1
+        elif last_item != None:
+            if count_of_last_item > 1:
+                ret.append(f'{str(last_item)} x{count_of_last_item}')
+            else:
+                ret.append(str(last_item))
+            count_of_last_item = 1
+            last_item = None
+        last_item = item
+    return ', '.join(ret)
