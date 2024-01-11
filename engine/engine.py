@@ -1,6 +1,6 @@
 import random
+from engine.item import Item, Action, ActorAction, Shoot, RoundStart, Nothing, ActionOutcome, Shell, InitialShellCount
 from abc import ABC, abstractmethod
-
 
 class PlayerAbstract(ABC):
     @abstractmethod
@@ -8,11 +8,11 @@ class PlayerAbstract(ABC):
             self,
             my_hp: int,
             opponent_hp: int,
-            my_items: list[str],
-            opponent_items: list[str],
-            action: str,
-            action_result: str,
-            available: list[str],
+            my_items: list[Item],
+            opponent_items: list[Item],
+            action: ActorAction,
+            action_outcome: ActionOutcome,
+            available: list[Action],
     ):
         """
         :param my_hp: int, your current HP.
@@ -61,7 +61,7 @@ class Player:
 
 
 class Engine:
-    ITEMS = ['BEER', 'CIGARETTES', 'HANDCUFFS', 'HAND_SAW', 'MAGNIFIER']
+    ITEMS = [Item.Beer, Item.Cigarettes, Item.Handcuffs, Item.HandSaw, Item.Magnifier]
 
     def __init__(
             self,
@@ -96,14 +96,21 @@ class Engine:
         total_bullets = random.randint(self.min_bullets, self.max_bullets)
         live_bullets = random.randint(1, total_bullets-1)
         blank_bullets = total_bullets - live_bullets
-        chamber = ['LIVE' for i in range(live_bullets)] + ['BLANK' for j in range(blank_bullets)]
+        chamber = [Shell.Live for i in range(live_bullets)] + [Shell.Blank for j in range(blank_bullets)]
         random.shuffle(chamber)
         return live_bullets, blank_bullets, chamber
 
-    def get_move(self, player_number: int, action: str, action_result: str, available: list[str]):
+    def get_move(self, player_number: int, action: Action, action_result: ActorAction, available: list[Action]):
         player = self.player1 if player_number == 1 else self.player2
         opponent = self.player2 if player_number == 1 else self.player1
         try:
+            def action_sort(action):
+                if action == Shoot.You:
+                    return 1
+                elif action == Shoot.Opponent:
+                    return 2
+                else:
+                    return 3
             move = player.handler.make_move(
                 player.hp,
                 opponent.hp,
@@ -111,9 +118,9 @@ class Engine:
                 opponent.items,
                 action,
                 action_result,
-                list(set(available)),
+                sorted(list(set(available)), key=action_sort),
             )
-            if move not in available and (len(available) > 0 or move != 'NOTHING'):
+            if move not in available and (len(available) > 0 or not isinstance(move, Nothing)):
                 raise ValueError('move is not in available')
         except Exception as e:
             raise
@@ -126,20 +133,20 @@ class Engine:
         handcuffs_cooldown = 0
         hand_saw_active = False
         while True:
-            if move in {'YOU', 'OPPONENT'}:
+            if isinstance(move, Shoot):
                 bullet = chamber.pop(0)
                 swap = True
-                if move == 'YOU' and bullet == 'LIVE':
+                if move == Shoot.You and bullet == Shell.Live:
                     player.hp -= 1
                     if hand_saw_active:
                         hand_saw_active = False
                         player.hp -= 1
-                if move == 'OPPONENT' and bullet == 'LIVE':
+                if move == Shoot.Opponent and bullet == Shell.Live:
                     opponent.hp -= 1
                     if hand_saw_active:
                         hand_saw_active = False
                         opponent.hp -= 1
-                if move == 'YOU' and bullet == 'BLANK':
+                if move == Shoot.You and bullet == Shell.Blank:
                     swap = False
                 if handcuffs_cooldown:
                     handcuffs_cooldown -= 1
@@ -147,19 +154,19 @@ class Engine:
                     opponent_handcuffed = False
                     swap = False
                 if swap:
-                    available = ['YOU', 'OPPONENT'] + opponent.items
+                    available = [Shoot.You, Shoot.Opponent] + opponent.items
                     if not chamber or player.hp <= 0 or opponent.hp <= 0:
                         available = []
-                    who_shot = 'YOU' if move == 'OPPONENT' else 'OPPONENT'
+                    who_shot = Shoot.You if move == Shoot.Opponent else Shoot.Opponent
                     opponent_move = self.get_move(
                         who_moves % 2 + 1,
-                        'OPPONENT ' + who_shot,
+                        ActorAction(Shoot.Opponent, who_shot),
                         bullet,
                         available,
                     )
                     self.get_move(
                         who_moves,
-                        'YOU ' + move,
+                        ActorAction(Shoot.You, move),
                         bullet,
                         [],
                     )
@@ -167,109 +174,109 @@ class Engine:
                     who_moves = who_moves % 2 + 1
                     player, opponent = opponent, player
                 else:
-                    available = ['YOU', 'OPPONENT'] + player.items
+                    available = [Shoot.You, Shoot.Opponent] + player.items
                     if not chamber or player.hp <= 0 or opponent.hp <= 0:
                         available = []
-                    who_shot = 'YOU' if move == 'OPPONENT' else 'OPPONENT'
+                    who_shot = Shoot.You if move == Shoot.Opponent else Shoot.Opponent
                     move = self.get_move(
                         who_moves,
-                        'YOU ' + move,
+                        ActorAction(Shoot.You, move),
                         bullet,
                         available,
                     )
                     self.get_move(
                         who_moves % 2 + 1,
-                        'OPPONENT ' + who_shot,
+                        ActorAction(Shoot.Opponent, who_shot),
                         bullet,
                         [],
                     )
                 if not chamber or player.hp <= 0 or opponent.hp <= 0:
                     return
 
-            if move == 'BEER':
+            if move == Item.Beer:
                 bullet = chamber.pop(0)
-                player.items.remove('BEER')
-                available = ['YOU', 'OPPONENT'] + player.items
+                player.items.remove(Item.Beer)
+                available = [Shoot.You, Shoot.Opponent] + player.items
                 if not chamber:
                     available = []
                 move = self.get_move(
                     who_moves,
-                    'YOU BEER',
+                    ActorAction(Shoot.You, Item.Beer),
                     bullet,
                     available,
                 )
                 self.get_move(
                     who_moves % 2 + 1,
-                    'OPPONENT BEER',
+                    ActorAction(Shoot.Opponent, Item.Beer),
                     bullet,
                     [],
                 )
                 if not chamber:
                     return
-            elif move == 'CIGARETTES':
+            elif move == Item.Cigarettes:
                 player.hp = player.hp + 1 if player.hp < self.max_hp else player.hp
-                player.items.remove('CIGARETTES')
-                available = ['YOU', 'OPPONENT'] + player.items
+                player.items.remove(Item.Cigarettes)
+                available = [Shoot.You, Shoot.Opponent] + player.items
                 move = self.get_move(
                     who_moves,
-                    'YOU CIGARETTES',
-                    '',
+                    ActorAction(Shoot.You, Item.Cigarettes),
+                    ActorAction(Shoot.You, Item.Cigarettes),
                     available,
                 )
                 self.get_move(
                     who_moves % 2 + 1,
-                    'OPPONENT CIGARETTES',
-                    '',
+                    ActorAction(Shoot.Opponent, Item.Cigarettes),
+                    ActorAction(Shoot.Opponent, Item.Cigarettes),
                     [],
                 )
-            elif move == 'HANDCUFFS':
-                player.items.remove('HANDCUFFS')
+            elif move == Item.Handcuffs:
+                player.items.remove(Item.Handcuffs)
                 if handcuffs_cooldown == 0:
                     opponent_handcuffed = True
                     handcuffs_cooldown = 2
-                available = ['YOU', 'OPPONENT'] + player.items
+                available = [Shoot.You, Shoot.Opponent] + player.items
                 move = self.get_move(
                     who_moves,
-                    'YOU HANDCUFFS',
-                    '',
+                    ActorAction(Shoot.You, Item.Handcuffs),
+                    ActorAction(Shoot.You, Item.Handcuffs),
                     available,
                 )
                 self.get_move(
                     who_moves % 2 + 1,
-                    'OPPONENT HANDCUFFS',
-                    '',
+                    ActorAction(Shoot.Opponent, Item.Handcuffs),
+                    ActorAction(Shoot.Opponent, Item.Handcuffs),
                     [],
                 )
-            elif move == 'HAND_SAW':
-                player.items.remove('HAND_SAW')
+            elif move == Item.HandSaw:
+                player.items.remove(Item.HandSaw)
                 hand_saw_active = True
-                available = ['YOU', 'OPPONENT'] + player.items
+                available = [Shoot.You, Shoot.Opponent] + player.items
                 move = self.get_move(
                     who_moves,
-                    'YOU HAND_SAW',
-                    '',
+                    ActorAction(Shoot.You, Item.HandSaw),
+                    ActorAction(Shoot.You, Item.HandSaw),
                     available,
                 )
                 self.get_move(
                     who_moves % 2 + 1,
-                    'OPPONENT HAND_SAW',
-                    '',
+                    ActorAction(Shoot.Opponent, Item.HandSaw),
+                    ActorAction(Shoot.Opponent, Item.HandSaw),
                     [],
                 )
-            elif move == 'MAGNIFIER':
-                player.items.remove('MAGNIFIER')
-                available = ['YOU', 'OPPONENT'] + player.items
+            elif move == Item.Magnifier:
+                player.items.remove(Item.Magnifier)
+                available = [Shoot.You, Shoot.Opponent] + player.items
                 bullet = chamber[0]
                 move = self.get_move(
                     who_moves,
-                    'YOU MAGNIFIER',
+                    ActorAction(Shoot.You, Item.Magnifier),
                     bullet,
                     available
                 )
                 self.get_move(
                     who_moves % 2 + 1,
-                    'OPPONENT MAGNIFIER',
-                    '',
+                    ActorAction(Shoot.Opponent, Item.Magnifier),
+                    Shell.Unknown,
                     [],
                 )
 
@@ -280,28 +287,28 @@ class Engine:
             if who_moves == 1:
                 move = self.get_move(
                     1,
-                    'BASE ROUND_START',
-                    f'{live_bullets} LIVE {blank_bullets} BLANK',
-                    ['YOU', 'OPPONENT'] + self.player1.items,
+                    RoundStart(),
+                    InitialShellCount(live_bullets, blank_bullets),
+                    [Shoot.You, Shoot.Opponent] + self.player1.items,
                 )
                 self.get_move(
                     2,
-                    'BASE ROUND_START',
-                    f'{live_bullets} LIVE {blank_bullets} BLANK',
+                    RoundStart(),
+                    InitialShellCount(live_bullets, blank_bullets),
                     [],
                 )
             else:
                 self.get_move(
                     1,
-                    'BASE ROUND_START',
-                    f'{live_bullets} LIVE {blank_bullets} BLANK',
+                    RoundStart(),
+                    InitialShellCount(live_bullets, blank_bullets),
                     [],
                 )
                 move = self.get_move(
                     2,
-                    'BASE ROUND_START',
-                    f'{live_bullets} LIVE {blank_bullets} BLANK',
-                    ['YOU', 'OPPONENT'] + self.player2.items,
+                    RoundStart(),
+                    InitialShellCount(live_bullets, blank_bullets),
+                    [Shoot.You, Shoot.Opponent] + self.player2.items,
                 )
             self.handle_round(move, who_moves, chamber)
         if self.player1.hp <= 0:
