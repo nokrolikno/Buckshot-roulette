@@ -13,14 +13,14 @@ class DealerBot(PlayerAbstract):
         self.gun_handsawed = False
 
     def make_move(
-            self,
-            my_hp: int,
-            opponent_hp: int,
-            my_items: list[Item],
-            opponent_items: list[Item],
-            action: ActorAction,
-            action_outcome: ActionOutcome,
-            available: list[Action],
+        self,
+        my_hp: int,
+        opponent_hp: int,
+        my_items: list[Item],
+        opponent_items: list[Item],
+        action: ActorAction,
+        action_outcome: ActionOutcome,
+        available: list[Action],
     ):
         if isinstance(action_outcome, InitialShellCount):
             self.live_count = action_outcome.live_count
@@ -74,5 +74,3 @@ class DealerBot(PlayerAbstract):
             if option == Item.Magnifier and self.known_shell != None:
                 option = None
         return option
-
-

@@ -2,20 +2,21 @@ from engine.engine import PlayerAbstract
 from engine.item import Action, ActionOutcome, ActorAction, Item, Nothing, RoundStart
 import time
 
+
 class CLIPlayer(PlayerAbstract):
     def __init__(self, number, language):
         self.number = number
         self.language = language
 
     def make_move(
-            self,
-            my_hp: int,
-            opponent_hp: int,
-            my_items: list[Item],
-            opponent_items: list[Item],
-            action: ActorAction,
-            action_outcome: ActionOutcome,
-            available: list[Action],
+        self,
+        my_hp: int,
+        opponent_hp: int,
+        my_items: list[Item],
+        opponent_items: list[Item],
+        action: ActorAction,
+        action_outcome: ActionOutcome,
+        available: list[Action],
     ):
         if not isinstance(action, RoundStart):
             print(self.language.acting_player(), end='')

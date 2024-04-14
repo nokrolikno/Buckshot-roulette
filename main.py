@@ -4,6 +4,7 @@ from primitive_bots.random_move_bot import RandomMoveBot
 from dealer.dealer import DealerBot
 from language.language import pick_language
 
+
 def main():
     language = pick_language()
     player1 = CLIPlayer(input(language.greeting()), language)
