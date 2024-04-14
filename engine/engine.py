@@ -83,7 +83,7 @@ class Engine:
         self.max_bullets = max_bullets
 
         if min_bullets < 2:
-            raise ValueError('min_bullets must be 2 or higher')
+            raise ValueError("min_bullets must be 2 or higher")
 
     def initialize_round(self):
         for i in range(self.draw_items):
@@ -124,7 +124,7 @@ class Engine:
                 sorted(list(set(available)), key=action_sort),
             )
             if move not in available and (len(available) > 0 or not isinstance(move, Nothing)):
-                raise ValueError('move is not in available')
+                raise ValueError("move is not in available")
         except Exception as e:
             raise
         return move
@@ -310,5 +310,5 @@ class Engine:
                 )
             self.handle_round(move, who_moves, chamber)
         if self.player1.hp <= 0:
-            return 'PLAYER 2 WINS'
-        return 'PLAYER 1 WINS'
+            return "PLAYER 2 WINS"
+        return "PLAYER 1 WINS"
