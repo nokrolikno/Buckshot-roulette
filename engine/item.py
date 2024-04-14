@@ -34,7 +34,7 @@ class Shoot(Action, Enum):
 
 class RoundStart(Action):
     def __str__(self):
-        return f"Round Start"
+        return "Round Start"
 
 
 class Nothing(Action):

@@ -6,12 +6,12 @@ exclude = '''
 /(
     \.git
   | \.venv
+  | venv
   | \.eggs
   | \.hg
   | \.mypy_cache
   | \.nox
   | \.tox
-  | \.venv
   | _build
   | buck-out
   | build

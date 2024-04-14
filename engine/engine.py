@@ -125,7 +125,7 @@ class Engine:
             )
             if move not in available and (len(available) > 0 or not isinstance(move, Nothing)):
                 raise ValueError("move is not in available")
-        except Exception as e:
+        except Exception:
             raise
         return move
 

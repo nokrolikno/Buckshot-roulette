@@ -49,7 +49,7 @@ class DealerBot(PlayerAbstract):
         if guaranteed_lethal and Item.HandSaw in available and not self.gun_handsawed:
             self.gun_handsawed = True
             return Item.HandSaw
-        if Item.Magnifier in available and self.known_shell == None:
+        if Item.Magnifier in available and self.known_shell is None:
             return Item.Magnifier
         if self.live_count == 0 or self.known_shell == Shell.Blank:
             if Item.Beer in available:
@@ -60,7 +60,7 @@ class DealerBot(PlayerAbstract):
             self.gun_handsawed = False
             return Shoot.Opponent
         option = None
-        while option == None:
+        while option is None:
             option = choice(available)
             if option == Item.HandSaw:
                 if self.gun_handsawed:
@@ -71,6 +71,6 @@ class DealerBot(PlayerAbstract):
                 option = None
             if option == Item.Cigarettes and my_hp >= 4:
                 option = None
-            if option == Item.Magnifier and self.known_shell != None:
+            if option == Item.Magnifier and self.known_shell is not None:
                 option = None
         return option
