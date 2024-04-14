@@ -11,5 +11,5 @@ def main():
     print(Engine(player1, player2).start())
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

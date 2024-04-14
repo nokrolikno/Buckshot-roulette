@@ -34,12 +34,12 @@ class Shoot(Action, Enum):
 
 class RoundStart(Action):
     def __str__(self):
-        return "Round Start"
+        return 'Round Start'
 
 
 class Nothing(Action):
     def __str__(self):
-        return "Nothing"
+        return 'Nothing'
 
 
 class ActorAction:
@@ -48,7 +48,7 @@ class ActorAction:
         self.action_taken = action_taken
 
     def __str__(self):
-        return str(self.actor) + " " + str(self.action_taken)
+        return str(self.actor) + ' ' + str(self.action_taken)
 
 
 class ActionOutcome:
@@ -70,4 +70,4 @@ class InitialShellCount(ActionOutcome):
         self.blank_count = blank_count
 
     def __str__(self):
-        return f"LIVE {self.live_count} BLANK {self.blank_count}"
+        return f'LIVE {self.live_count} BLANK {self.blank_count}'

@@ -1,5 +1,6 @@
 [tool.black]
 line-length = 120
+skip-string-normalization = true
 target-version = ["py39", "py310", "py311"]
 include = '\.pyi?$'
 exclude = '''
@@ -18,3 +19,10 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+# Use single quotes rather than double quotes.
+quote-style = "single"

@@ -19,5 +19,3 @@ jobs:
         pip install -r requirements.txt
     - name: Ruff Lint
       run: ruff check --output-format=github .
-    - name: black check
-      run: black --check .
