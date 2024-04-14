@@ -2,20 +2,21 @@ from engine.engine import PlayerAbstract
 from engine.item import Action, ActionOutcome, ActorAction, Item, Nothing, RoundStart
 import time
 
+
 class CLIPlayer(PlayerAbstract):
     def __init__(self, number, language):
         self.number = number
         self.language = language
 
     def make_move(
-            self,
-            my_hp: int,
-            opponent_hp: int,
-            my_items: list[Item],
-            opponent_items: list[Item],
-            action: ActorAction,
-            action_outcome: ActionOutcome,
-            available: list[Action],
+        self,
+        my_hp: int,
+        opponent_hp: int,
+        my_items: list[Item],
+        opponent_items: list[Item],
+        action: ActorAction,
+        action_outcome: ActionOutcome,
+        available: list[Action],
     ):
         if not isinstance(action, RoundStart):
             print(self.language.acting_player(), end='')
@@ -35,7 +36,7 @@ class CLIPlayer(PlayerAbstract):
         if len(available) > 0:
             move = None
             text_moves = list(map(lambda x: str(x).lower(), available))
-            while move == None:
+            while move is None:
                 print(self.language.available_moves(), end='')
                 print(', '.join(map(str, available)))
                 try:
@@ -56,14 +57,14 @@ def describe_items(items: list[Item]) -> str:
     ret = []
     last_item = None
     count_of_last_item = 1
-    while items or last_item != None:
+    while items or last_item is not None:
         try:
             item = items.pop()
         except IndexError:
             item = None
         if last_item == item:
             count_of_last_item += 1
-        elif last_item != None:
+        elif last_item is not None:
             if count_of_last_item > 1:
                 ret.append(f'{str(last_item)} x{count_of_last_item}')
             else:

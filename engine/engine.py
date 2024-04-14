@@ -2,17 +2,18 @@ import random
 from engine.item import Item, Action, ActorAction, Shoot, RoundStart, Nothing, ActionOutcome, Shell, InitialShellCount
 from abc import ABC, abstractmethod
 
+
 class PlayerAbstract(ABC):
     @abstractmethod
     def make_move(
-            self,
-            my_hp: int,
-            opponent_hp: int,
-            my_items: list[Item],
-            opponent_items: list[Item],
-            action: ActorAction,
-            action_outcome: ActionOutcome,
-            available: list[Action],
+        self,
+        my_hp: int,
+        opponent_hp: int,
+        my_items: list[Item],
+        opponent_items: list[Item],
+        action: ActorAction,
+        action_outcome: ActionOutcome,
+        available: list[Action],
     ):
         """
         :param my_hp: int, your current HP.
@@ -64,14 +65,14 @@ class Engine:
     ITEMS = [Item.Beer, Item.Cigarettes, Item.Handcuffs, Item.HandSaw, Item.Magnifier]
 
     def __init__(
-            self,
-            player1: PlayerAbstract,
-            player2: PlayerAbstract,
-            hp=4,
-            max_items=8,
-            draw_items=4,
-            min_bullets=3,
-            max_bullets=8
+        self,
+        player1: PlayerAbstract,
+        player2: PlayerAbstract,
+        hp=4,
+        max_items=8,
+        draw_items=4,
+        min_bullets=3,
+        max_bullets=8,
     ):
         self.player1 = Player(hp, player1)
         self.player2 = Player(hp, player2)
@@ -94,7 +95,7 @@ class Engine:
                 break
             self.player2.items.append(random.choice(self.ITEMS))
         total_bullets = random.randint(self.min_bullets, self.max_bullets)
-        live_bullets = random.randint(1, total_bullets-1)
+        live_bullets = random.randint(1, total_bullets - 1)
         blank_bullets = total_bullets - live_bullets
         chamber = [Shell.Live for i in range(live_bullets)] + [Shell.Blank for j in range(blank_bullets)]
         random.shuffle(chamber)
@@ -104,6 +105,7 @@ class Engine:
         player = self.player1 if player_number == 1 else self.player2
         opponent = self.player2 if player_number == 1 else self.player1
         try:
+
             def action_sort(action):
                 if action == Shoot.You:
                     return 1
@@ -111,6 +113,7 @@ class Engine:
                     return 2
                 else:
                     return 3
+
             move = player.handler.make_move(
                 player.hp,
                 opponent.hp,
@@ -122,7 +125,7 @@ class Engine:
             )
             if move not in available and (len(available) > 0 or not isinstance(move, Nothing)):
                 raise ValueError('move is not in available')
-        except Exception as e:
+        except Exception:
             raise
         return move
 
@@ -267,12 +270,7 @@ class Engine:
                 player.items.remove(Item.Magnifier)
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 bullet = chamber[0]
-                move = self.get_move(
-                    who_moves,
-                    ActorAction(Shoot.You, Item.Magnifier),
-                    bullet,
-                    available
-                )
+                move = self.get_move(who_moves, ActorAction(Shoot.You, Item.Magnifier), bullet, available)
                 self.get_move(
                     who_moves % 2 + 1,
                     ActorAction(Shoot.Opponent, Item.Magnifier),
