@@ -1,8 +1,9 @@
 from enum import Enum
 
+
 def pick_language():
     language = None
-    while language == None:
+    while language is None:
         print('Выберите язык')
         print('Select Language')
         print('----------')
@@ -15,6 +16,7 @@ def pick_language():
                 language = Language.English
     return language
 
+
 class Language(Enum):
     Russian = 1
     English = 2
@@ -25,12 +27,14 @@ class Language(Enum):
                 return 'Введите имя игрока: '
             case Language.English:
                 return 'Enter your name: '
+
     def acting_player(self):
         match self:
             case Language.Russian:
                 return 'Делаю ход от лица '
             case Language.English:
-                return "Making a move on behalf of "
+                return 'Making a move on behalf of '
+
     def hp(self):
         match self:
             case Language.Russian:
@@ -50,7 +54,7 @@ class Language(Enum):
             case Language.Russian:
                 return 'Мои вещи: '
             case Language.English:
-                return "My items: "
+                return 'My items: '
 
     def opponent_items(self):
         match self:
@@ -58,7 +62,7 @@ class Language(Enum):
                 return 'Вещи оппонента: '
             case Language.English:
                 return "Opponent's items: "
-    
+
     def action(self):
         match self:
             case Language.Russian:
@@ -72,17 +76,17 @@ class Language(Enum):
                 return 'Результат действия: '
             case Language.English:
                 return 'Action outcome: '
-    
+
     def available_moves(self):
         match self:
             case Language.Russian:
                 return 'Доступные ходы: '
             case Language.English:
-                return "Available moves: "
+                return 'Available moves: '
 
     def my_move(self):
         match self:
             case Language.Russian:
                 return 'Мой ход: '
             case Language.English:
-                return "My move: "
+                return 'My move: '

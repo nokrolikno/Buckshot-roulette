@@ -14,14 +14,14 @@ class DealerBot(PlayerAbstract):
         self.used_inverter = False
         self.memory_phone_call = None
     def make_move(
-            self,
-            my_hp: int,
-            opponent_hp: int,
-            my_items: list[Item],
-            opponent_items: list[Item],
-            action: ActorAction,
-            action_outcome: ActionOutcome,
-            available: list[Action],
+        self,
+        my_hp: int,
+        opponent_hp: int,
+        my_items: list[Item],
+        opponent_items: list[Item],
+        action: ActorAction,
+        action_outcome: ActionOutcome,
+        available: list[Action],
     ):
         if isinstance(action_outcome, InitialShellCount):
             self.live_count = action_outcome.live_count
@@ -72,9 +72,9 @@ class DealerBot(PlayerAbstract):
             return Item.HandSaw
         if guaranteed_lethal and Item.Adrenaline in available and not self.gun_handsawed and Item.HandSaw in opponent_items:
             return Item.Adrenaline
-        if Item.Adrenaline in available and Item.Magnifier in opponent_items and self.known_shell == None:
+        if Item.Adrenaline in available and Item.Magnifier in opponent_items and self.known_shell is None:
             return Item.Adrenaline
-        if Item.Magnifier in available and self.known_shell == None:
+        if Item.Magnifier in available and self.known_shell is None:
             return Item.Magnifier
         if Item.Adrenaline in available and Item.Phone in opponent_items and self.known_shell == None:
             return Item.Adrenaline
@@ -97,7 +97,7 @@ class DealerBot(PlayerAbstract):
             self.gun_handsawed = False
             return Shoot.Opponent
         option = None
-        while option == None:
+        while option is None:
             option = choice(available)
             if option == Item.HandSaw:
                 if self.gun_handsawed:
@@ -110,10 +110,8 @@ class DealerBot(PlayerAbstract):
                 option = None
             if option == Item.Medicine and my_hp >= 4:
                 option = None
-            if option == Item.Magnifier and self.known_shell != None:
+            if option == Item.Magnifier and self.known_shell is not None:
                 option = None
             if option == Item.Adrenaline and (not opponent_items or all([x == Item.Adrenaline for x in opponent_items])):
                 option = None
         return option
-
-
