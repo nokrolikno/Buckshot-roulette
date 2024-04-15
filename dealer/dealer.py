@@ -13,6 +13,7 @@ class DealerBot(PlayerAbstract):
         self.gun_handsawed = False
         self.used_inverter = False
         self.memory_phone_call = None
+
     def make_move(
         self,
         my_hp: int,
@@ -54,7 +55,7 @@ class DealerBot(PlayerAbstract):
                     # self.memory_phone_call = action_outcome
                     if action_outcome.number == 0:
                         self.known_shell = action_outcome.shell
-                
+
         if not available:
             return Nothing()
         guaranteed_lethal = self.blank_count == 0 or self.known_shell == Shell.Live
@@ -62,7 +63,11 @@ class DealerBot(PlayerAbstract):
             return Item.Cigarettes
         if Item.Medicine in available and my_hp < 4:
             return Item.Medicine
-        if Item.Adrenaline in available and (Item.Cigarettes in opponent_items or Item.Medicine in opponent_items) and my_hp < 4:
+        if (
+            Item.Adrenaline in available
+            and (Item.Cigarettes in opponent_items or Item.Medicine in opponent_items)
+            and my_hp < 4
+        ):
             return Item.Adrenaline
         if Item.Handcuffs in available and self.handcuffs_cooldown == 0:
             self.handcuffs_cooldown = 2
@@ -70,15 +75,20 @@ class DealerBot(PlayerAbstract):
         if guaranteed_lethal and Item.HandSaw in available and not self.gun_handsawed:
             self.gun_handsawed = True
             return Item.HandSaw
-        if guaranteed_lethal and Item.Adrenaline in available and not self.gun_handsawed and Item.HandSaw in opponent_items:
+        if (
+            guaranteed_lethal
+            and Item.Adrenaline in available
+            and not self.gun_handsawed
+            and Item.HandSaw in opponent_items
+        ):
             return Item.Adrenaline
         if Item.Adrenaline in available and Item.Magnifier in opponent_items and self.known_shell is None:
             return Item.Adrenaline
         if Item.Magnifier in available and self.known_shell is None:
             return Item.Magnifier
-        if Item.Adrenaline in available and Item.Phone in opponent_items and self.known_shell == None:
+        if Item.Adrenaline in available and Item.Phone in opponent_items and self.known_shell is None:
             return Item.Adrenaline
-        if Item.Phone in available and self.known_shell == None:
+        if Item.Phone in available and self.known_shell is None:
             return Item.Phone
         if self.live_count == 0 or self.known_shell == Shell.Blank:
             if Item.Adrenaline in available and Item.Inverter in opponent_items:
@@ -112,6 +122,8 @@ class DealerBot(PlayerAbstract):
                 option = None
             if option == Item.Magnifier and self.known_shell is not None:
                 option = None
-            if option == Item.Adrenaline and (not opponent_items or all([x == Item.Adrenaline for x in opponent_items])):
+            if option == Item.Adrenaline and (
+                not opponent_items or all([x == Item.Adrenaline for x in opponent_items])
+            ):
                 option = None
         return option

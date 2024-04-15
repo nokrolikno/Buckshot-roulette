@@ -1,5 +1,16 @@
 import random
-from engine.item import Item, Action, ActorAction, Shoot, RoundStart, Nothing, ActionOutcome, Shell, InitialShellCount, PhoneCall
+from engine.item import (
+    Item,
+    Action,
+    ActorAction,
+    Shoot,
+    RoundStart,
+    Nothing,
+    ActionOutcome,
+    Shell,
+    InitialShellCount,
+    PhoneCall,
+)
 from abc import ABC, abstractmethod
 
 
@@ -62,7 +73,17 @@ class Player:
 
 
 class Engine:
-    ITEMS = [Item.Beer, Item.Cigarettes, Item.Handcuffs, Item.HandSaw, Item.Magnifier, Item.Phone, Item.Inverter, Item.Medicine, Item.Adrenaline]
+    ITEMS = [
+        Item.Beer,
+        Item.Cigarettes,
+        Item.Handcuffs,
+        Item.HandSaw,
+        Item.Magnifier,
+        Item.Phone,
+        Item.Inverter,
+        Item.Medicine,
+        Item.Adrenaline,
+    ]
 
     def __init__(
         self,
@@ -155,7 +176,7 @@ class Engine:
                 if opponent_handcuffed:
                     opponent_handcuffed = False
                     swap = False
-                hand_saw_active = False 
+                hand_saw_active = False
                 if swap:
                     available = [Shoot.You, Shoot.Opponent] + opponent.items
                     if not chamber or player.hp <= 0 or opponent.hp <= 0:
@@ -201,7 +222,7 @@ class Engine:
                 if adrenaline_active:
                     opponent.items.remove(Item.Beer)
                     adrenaline_active = False
-                else:    
+                else:
                     player.items.remove(Item.Beer)
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 if not chamber:
@@ -225,7 +246,7 @@ class Engine:
                 if adrenaline_active:
                     opponent.items.remove(Item.Cigarettes)
                     adrenaline_active = False
-                else:    
+                else:
                     player.items.remove(Item.Cigarettes)
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 move = self.get_move(
@@ -244,7 +265,7 @@ class Engine:
                 if adrenaline_active:
                     opponent.items.remove(Item.Handcuffs)
                     adrenaline_active = False
-                else:    
+                else:
                     player.items.remove(Item.Handcuffs)
                 if handcuffs_cooldown == 0:
                     opponent_handcuffed = True
@@ -266,7 +287,7 @@ class Engine:
                 if adrenaline_active:
                     opponent.items.remove(Item.HandSaw)
                     adrenaline_active = False
-                else:    
+                else:
                     player.items.remove(Item.HandSaw)
                 hand_saw_active = True
                 available = [Shoot.You, Shoot.Opponent] + player.items
@@ -286,7 +307,7 @@ class Engine:
                 if adrenaline_active:
                     opponent.items.remove(Item.Magnifier)
                     adrenaline_active = False
-                else:    
+                else:
                     player.items.remove(Item.Magnifier)
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 bullet = chamber[0]
@@ -301,7 +322,7 @@ class Engine:
                 if adrenaline_active:
                     opponent.items.remove(Item.Phone)
                     adrenaline_active = False
-                else:    
+                else:
                     player.items.remove(Item.Phone)
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 bulletno = random.randint(0, len(chamber) - 1)
@@ -322,7 +343,7 @@ class Engine:
                 if adrenaline_active:
                     opponent.items.remove(Item.Inverter)
                     adrenaline_active = False
-                else:    
+                else:
                     player.items.remove(Item.Inverter)
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 chamber[0] = Shell.Live if chamber[0] == Shell.Blank else Shell.Blank
@@ -339,12 +360,12 @@ class Engine:
                     [],
                 )
             elif move == Item.Medicine:
-                player.hp = player.hp + 2 if random.randint(1,2) == 2 else player.hp - 1
+                player.hp = player.hp + 2 if random.randint(1, 2) == 2 else player.hp - 1
                 player.hp = self.max_hp if player.hp > self.max_hp else self.max_hp
                 if adrenaline_active:
                     opponent.items.remove(Item.Medicine)
                     adrenaline_active = False
-                else:    
+                else:
                     player.items.remove(Item.Medicine)
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 move = self.get_move(
@@ -368,21 +389,21 @@ class Engine:
                 if not available:
                     adrenaline_active = False
                 move = self.get_move(
-                who_moves,
-                ActorAction(Shoot.You, Item.Adrenaline),
-                ActorAction(Shoot.You, Item.Adrenaline),
-                available,
+                    who_moves,
+                    ActorAction(Shoot.You, Item.Adrenaline),
+                    ActorAction(Shoot.You, Item.Adrenaline),
+                    available,
                 )
                 self.get_move(
                     who_moves % 2 + 1,
                     ActorAction(Shoot.Opponent, Item.Adrenaline),
                     ActorAction(Shoot.Opponent, Item.Adrenaline),
                     [],
-                )    
+                )
 
     def start(self):
         while self.player1.hp > 0 and self.player2.hp > 0:
-            who_moves = 1 # random.randint(1, 2)
+            who_moves = 1  # random.randint(1, 2)
             live_bullets, blank_bullets, chamber = self.initialize_round()
             if who_moves == 1:
                 move = self.get_move(

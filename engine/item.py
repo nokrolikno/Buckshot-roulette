@@ -14,7 +14,7 @@ class Item(Action, Enum):
     HandSaw = auto()
     Magnifier = auto()
     Phone = auto()
-    Adrenaline  = auto()
+    Adrenaline = auto()
     Inverter = auto()
     Medicine = auto()
 
@@ -66,7 +66,8 @@ class Shell(ActionOutcome, Enum):
 
     def __str__(self):
         return self.name
-    
+
+
 class PhoneCall(ActionOutcome):
     number = 0
     shell = Shell.Unknown
@@ -74,9 +75,9 @@ class PhoneCall(ActionOutcome):
     def __init__(self, number, shell):
         self.number = number
         self.shell = shell
-    
+
     def __str__(self):
-        return f"SHELL NO. {self.number + 1} ... {self.shell.name}."
+        return f'SHELL NO. {self.number + 1} ... {self.shell.name}.'
 
 
 class InitialShellCount(ActionOutcome):
