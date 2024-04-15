@@ -157,6 +157,15 @@ class Engine:
         handcuffs_cooldown = 0
         hand_saw_active = False
         adrenaline_active = False
+
+        def remove_item(item):
+            nonlocal adrenaline_active
+            if adrenaline_active:
+                opponent.items.remove(item)
+                adrenaline_active = False
+            else:
+                player.items.remove(item)
+
         while True:
             if isinstance(move, Shoot):
                 bullet = chamber.pop(0)
@@ -219,11 +228,7 @@ class Engine:
 
             if move == Item.Beer:
                 bullet = chamber.pop(0)
-                if adrenaline_active:
-                    opponent.items.remove(Item.Beer)
-                    adrenaline_active = False
-                else:
-                    player.items.remove(Item.Beer)
+                remove_item(Item.Beer)
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 if not chamber:
                     available = []
@@ -243,11 +248,7 @@ class Engine:
                     return
             elif move == Item.Cigarettes:
                 player.hp = player.hp + 1 if player.hp < self.max_hp else player.hp
-                if adrenaline_active:
-                    opponent.items.remove(Item.Cigarettes)
-                    adrenaline_active = False
-                else:
-                    player.items.remove(Item.Cigarettes)
+                remove_item(Item.Cigarettes)
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 move = self.get_move(
                     who_moves,
@@ -262,11 +263,7 @@ class Engine:
                     [],
                 )
             elif move == Item.Handcuffs:
-                if adrenaline_active:
-                    opponent.items.remove(Item.Handcuffs)
-                    adrenaline_active = False
-                else:
-                    player.items.remove(Item.Handcuffs)
+                remove_item(Item.Handcuffs)
                 if handcuffs_cooldown == 0:
                     opponent_handcuffed = True
                     handcuffs_cooldown = 2
@@ -284,11 +281,7 @@ class Engine:
                     [],
                 )
             elif move == Item.HandSaw:
-                if adrenaline_active:
-                    opponent.items.remove(Item.HandSaw)
-                    adrenaline_active = False
-                else:
-                    player.items.remove(Item.HandSaw)
+                remove_item(Item.HandSaw)
                 hand_saw_active = True
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 move = self.get_move(
@@ -304,11 +297,7 @@ class Engine:
                     [],
                 )
             elif move == Item.Magnifier:
-                if adrenaline_active:
-                    opponent.items.remove(Item.Magnifier)
-                    adrenaline_active = False
-                else:
-                    player.items.remove(Item.Magnifier)
+                remove_item(Item.Magnifier)
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 bullet = chamber[0]
                 move = self.get_move(who_moves, ActorAction(Shoot.You, Item.Magnifier), bullet, available)
@@ -319,11 +308,7 @@ class Engine:
                     [],
                 )
             elif move == Item.Phone:
-                if adrenaline_active:
-                    opponent.items.remove(Item.Phone)
-                    adrenaline_active = False
-                else:
-                    player.items.remove(Item.Phone)
+                remove_item(Item.Phone)
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 bulletno = random.randint(0, len(chamber) - 1)
                 result = PhoneCall(bulletno, chamber[bulletno])
@@ -340,11 +325,7 @@ class Engine:
                     [],
                 )
             elif move == Item.Inverter:
-                if adrenaline_active:
-                    opponent.items.remove(Item.Inverter)
-                    adrenaline_active = False
-                else:
-                    player.items.remove(Item.Inverter)
+                remove_item(Item.Inverter)
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 chamber[0] = Shell.Live if chamber[0] == Shell.Blank else Shell.Blank
                 move = self.get_move(
@@ -361,12 +342,8 @@ class Engine:
                 )
             elif move == Item.Medicine:
                 player.hp = player.hp + 2 if random.randint(1, 2) == 2 else player.hp - 1
-                player.hp = self.max_hp if player.hp > self.max_hp else self.max_hp
-                if adrenaline_active:
-                    opponent.items.remove(Item.Medicine)
-                    adrenaline_active = False
-                else:
-                    player.items.remove(Item.Medicine)
+                player.hp = self.max_hp if player.hp > self.max_hp else player.hp
+                remove_item(Item.Medicine)
                 available = [Shoot.You, Shoot.Opponent] + player.items
                 move = self.get_move(
                     who_moves,
@@ -385,7 +362,7 @@ class Engine:
                 available = opponent.items.copy()
                 adrenaline_active = True
                 if Item.Adrenaline in available:
-                    available = available.remove(Item.Adrenaline)
+                    available.remove(Item.Adrenaline)
                 if not available:
                     adrenaline_active = False
                 move = self.get_move(
