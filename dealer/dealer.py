@@ -61,7 +61,7 @@ class DealerBot(PlayerAbstract):
         guaranteed_lethal = self.blank_count == 0 or self.known_shell == Shell.Live
         if Item.Cigarettes in available and my_hp < 4:
             return Item.Cigarettes
-        if Item.Medicine in available and my_hp < 4:
+        if Item.Medicine in available and 1 < my_hp < 4:
             return Item.Medicine
         if (
             Item.Adrenaline in available
