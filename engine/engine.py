@@ -348,6 +348,8 @@ class Engine:
                 player.hp = self.max_hp if player.hp > self.max_hp else player.hp
                 remove_item(Item.Medicine)
                 available = [Shoot.You, Shoot.Opponent] + player.items
+                if player.hp <= 0:
+                    available = []
                 move = self.get_move(
                     who_moves,
                     ActorAction(Shoot.You, Item.Medicine),
