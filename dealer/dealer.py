@@ -51,6 +51,7 @@ class DealerBot(PlayerAbstract):
                 if action_outcome != Shell.Unknown:
                     self.memory_shells[0] = action_outcome
             if action.action_taken == Item.Phone:
+                assert isinstance(action_outcome, PhoneCall)
                 if action_outcome.shell != Shell.Unknown:
                     self.memory_shells[action_outcome.number] = action_outcome.shell
 
