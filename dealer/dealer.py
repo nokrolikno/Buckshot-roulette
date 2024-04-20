@@ -9,10 +9,9 @@ class DealerBot(PlayerAbstract):
         self.live_count = 0
         self.blank_count = 0
         self.handcuffs_cooldown = 0
-        self.known_shell = None
         self.gun_handsawed = False
         self.used_inverter = False
-        self.memory_phone_call = None
+        self.memory_shells = []
 
     def make_move(
         self,
@@ -27,12 +26,13 @@ class DealerBot(PlayerAbstract):
         if isinstance(action_outcome, InitialShellCount):
             self.live_count = action_outcome.live_count
             self.blank_count = action_outcome.blank_count
+            self.memory_shells = [Shell.Unknown] * (self.live_count + self.blank_count)
         if isinstance(action, ActorAction):
             if action.action_taken in [Shoot.You, Shoot.Opponent] and self.handcuffs_cooldown > 0:
                 self.handcuffs_cooldown -= 1
             # If the action can change our count
             if action.action_taken in [Item.Beer, Shoot.You, Shoot.Opponent]:
-                self.known_shell = None
+                self.memory_shells.pop(0)
                 if self.used_inverter:
                     if action_outcome == Shell.Live:
                         self.blank_count -= 1
@@ -49,16 +49,15 @@ class DealerBot(PlayerAbstract):
 
             if action.action_taken == Item.Magnifier:
                 if action_outcome != Shell.Unknown:
-                    self.known_shell = action_outcome
+                    self.memory_shells[0] = action_outcome
             if action.action_taken == Item.Phone:
-                if isinstance(action_outcome, PhoneCall):
-                    # self.memory_phone_call = action_outcome
-                    if action_outcome.number == 0:
-                        self.known_shell = action_outcome.shell
+                assert isinstance(action_outcome, PhoneCall)
+                if action_outcome.shell != Shell.Unknown:
+                    self.memory_shells[action_outcome.number] = action_outcome.shell
 
         if not available:
             return Nothing()
-        guaranteed_lethal = self.blank_count == 0 or self.known_shell == Shell.Live
+        guaranteed_lethal = self.blank_count == 0 or self.memory_shells[0] == Shell.Live
         if Item.Cigarettes in available and my_hp < 4:
             return Item.Cigarettes
         if Item.Medicine in available and 1 < my_hp < 4:
@@ -82,19 +81,19 @@ class DealerBot(PlayerAbstract):
             and Item.HandSaw in opponent_items
         ):
             return Item.Adrenaline
-        if Item.Adrenaline in available and Item.Magnifier in opponent_items and self.known_shell is None:
+        if Item.Adrenaline in available and Item.Magnifier in opponent_items and self.memory_shells[0] == Shell.Unknown:
             return Item.Adrenaline
-        if Item.Magnifier in available and self.known_shell is None:
+        if Item.Magnifier in available and self.memory_shells[0] == Shell.Unknown:
             return Item.Magnifier
-        if Item.Adrenaline in available and Item.Phone in opponent_items and self.known_shell is None:
+        if Item.Adrenaline in available and Item.Phone in opponent_items and self.memory_shells[0] == Shell.Unknown:
             return Item.Adrenaline
-        if Item.Phone in available and self.known_shell is None:
+        if Item.Phone in available and self.memory_shells[0] == Shell.Unknown:
             return Item.Phone
-        if self.live_count == 0 or self.known_shell == Shell.Blank:
+        if self.live_count == 0 or self.memory_shells[0] == Shell.Blank:
             if Item.Adrenaline in available and Item.Inverter in opponent_items:
                 return Item.Adrenaline
             if Item.Inverter in available:
-                self.known_shell = Shell.Live
+                self.memory_shells[0] == Shell.Live
                 self.live_count += 1
                 self.blank_count -= 1
                 return Item.Inverter
@@ -120,7 +119,7 @@ class DealerBot(PlayerAbstract):
                 option = None
             if option == Item.Medicine and my_hp >= 4:
                 option = None
-            if option == Item.Magnifier and self.known_shell is not None:
+            if option == Item.Magnifier and self.memory_shells[0] != Shell.Unknown:
                 option = None
             if option == Item.Adrenaline and (
                 not opponent_items or all([x == Item.Adrenaline for x in opponent_items])
