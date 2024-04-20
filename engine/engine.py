@@ -310,8 +310,11 @@ class Engine:
             elif move == Item.Phone:
                 remove_item(Item.Phone)
                 available = [Shoot.You, Shoot.Opponent] + player.items
-                bulletno = random.randint(0, len(chamber) - 1)
-                result = PhoneCall(bulletno, chamber[bulletno])
+                if len(chamber) < 2:
+                    result = PhoneCall(0, Shell.Unknown)
+                else:
+                    bulletno = random.randint(1, len(chamber) - 1)
+                    result = PhoneCall(bulletno, chamber[bulletno])
                 move = self.get_move(
                     who_moves,
                     ActorAction(Shoot.You, Item.Phone),
@@ -321,7 +324,7 @@ class Engine:
                 self.get_move(
                     who_moves % 2 + 1,
                     ActorAction(Shoot.Opponent, Item.Phone),
-                    Shell.Unknown,
+                    PhoneCall(0, Shell.Unknown),
                     [],
                 )
             elif move == Item.Inverter:

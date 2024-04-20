@@ -77,6 +77,8 @@ class PhoneCall(ActionOutcome):
         self.shell = shell
 
     def __str__(self):
+        if self.shell == Shell.Unknown:
+            return 'Unfortunate...'
         return f'SHELL NO. {self.number + 1} ... {self.shell.name}.'
 
 
